@@ -560,7 +560,9 @@
           metaItem("Signo Lunar", b.moonSign), metaItem("Casa Lunar", `Casa ${b.moonHouse}`),
           metaItem("Signo Ascendente", b.ascendantSign)
         ]),
-        el("p", { class: "desc" }, [b.description])
+        el("div", { class: "label", style: "margin-bottom:6px;" }, ["Cualidades principales"]),
+        chips(b.qualities),
+        el("p", { class: "desc", style: "margin-top:16px;" }, [b.description])
       ]);
     }
     if (key === "enneagram") {

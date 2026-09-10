@@ -124,4 +124,13 @@ Tu Luna está en ${chart.moonSign.name}, en la Casa ${chart.moonHouse} (${moonHo
 Tu Ascendente está en ${chart.ascSign.name}, el signo que marca cómo te presentas ante los demás en un primer momento: ${chart.ascSign.desc}`;
 }
 
-module.exports = { computeBirthChart, buildChartInterpretation, HOUSE_MEANINGS };
+function getChartQualities(chart) {
+  const combined = [
+    ...chart.sunSign.qualities.slice(0, 2),
+    ...chart.moonSign.qualities.slice(0, 2),
+    ...chart.ascSign.qualities.slice(0, 2)
+  ];
+  return [...new Set(combined)];
+}
+
+module.exports = { computeBirthChart, buildChartInterpretation, getChartQualities, HOUSE_MEANINGS };

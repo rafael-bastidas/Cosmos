@@ -1,7 +1,7 @@
 const express = require("express");
 const { getWesternSignByDate } = require("../lib/zodiac");
 const { getChineseHoroscope } = require("../lib/chinese");
-const { computeBirthChart, buildChartInterpretation } = require("../lib/birthChart");
+const { computeBirthChart, buildChartInterpretation, getChartQualities } = require("../lib/birthChart");
 const { scoreEnneagram, buildEnneagramInterpretation, ENNEAGRAM_TYPES, ENNEAGRAM_CENTERS, ENNEAGRAM_QUESTIONS } = require("../lib/enneagram");
 
 const router = express.Router();
@@ -136,6 +136,7 @@ router.post("/calculate", (req, res) => {
           moonSign: chart.moonSign.name, moonHouse: chart.moonHouse,
           ascendantSign: chart.ascSign.name,
           houseSystem: "Signos Enteros (Whole Sign)",
+          qualities: getChartQualities(chart),
           description: buildChartInterpretation(chart)
         };
       }

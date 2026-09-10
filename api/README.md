@@ -124,6 +124,7 @@ Solo eneagrama (sin datos de nacimiento):
     "moonSign": "Piscis", "moonHouse": 8,
     "ascendantSign": "Leo",
     "houseSystem": "Signos Enteros (Whole Sign)",
+    "qualities": ["Curioso", "Comunicativo", "Soñador", "Compasivo", "Carismático", "Generoso"],
     "description": "..."
   },
   "enneagram": {

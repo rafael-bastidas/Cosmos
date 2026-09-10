@@ -346,6 +346,8 @@
               <div class="value" id="chartAscSign"></div>
             </div>
           </div>
+          <div class="label" style="margin-bottom:6px;">Cualidades principales</div>
+          <div class="qualities" id="chartQualities" style="margin-bottom:16px;"></div>
           <p class="desc" id="chartInterpretation" style="white-space: pre-line;"></p>
         </div>
       </div>
@@ -602,6 +604,15 @@
 Tu Luna está en ${chart.moonSign.name}, en la Casa ${chart.moonHouse} (${moonHouseInfo.title}). La Luna representa tu mundo emocional e instintivo, así que sientes y reaccionas con rasgos propios de ${chart.moonSign.name}: ${chart.moonSign.desc} A nivel emocional, esto se vive sobre todo en torno a ${moonHouseInfo.theme}.
 
 Tu Ascendente está en ${chart.ascSign.name}, el signo que marca cómo te presentas ante los demás en un primer momento: ${chart.ascSign.desc}`;
+  }
+
+  function getChartQualities(chart) {
+    const combined = [
+      ...chart.sunSign.qualities.slice(0, 2),
+      ...chart.moonSign.qualities.slice(0, 2),
+      ...chart.ascSign.qualities.slice(0, 2)
+    ];
+    return [...new Set(combined)];
   }
 
   // --- Búsqueda de lugar (geocodificación) y desfase UTC automático ---
@@ -1002,6 +1013,7 @@ En momentos de seguridad y crecimiento personal, tiendes a integrar cualidades d
       document.getElementById("chartMoonSign").textContent = chart.moonSign.name;
       document.getElementById("chartMoonHouse").textContent = `Casa ${chart.moonHouse}`;
       document.getElementById("chartAscSign").textContent = chart.ascSign.name;
+      renderChips(document.getElementById("chartQualities"), getChartQualities(chart));
       document.getElementById("chartInterpretation").textContent = buildChartInterpretation(chart);
 
       document.getElementById("chartMissing").hidden = true;
