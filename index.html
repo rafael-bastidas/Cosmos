@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cosmos · Zodiaco, Horóscopo Chino y Carta Astral</title>
+<style>
+  :root {
+    --bg-1: #1b1033;
+    --bg-2: #2d1b4e;
+    --accent: #f5a623;
+    --accent-2: #8e6bff;
+    --card-bg: rgba(255,255,255,0.06);
+    --card-border: rgba(255,255,255,0.12);
+    --text: #f2eefc;
+    --text-dim: #b9aed6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(142,107,255,0.25), transparent 40%),
+      radial-gradient(circle at 80% 0%, rgba(245,166,35,0.15), transparent 45%),
+      linear-gradient(160deg, var(--bg-1), var(--bg-2));
+    color: var(--text);
+    padding: 32px 16px 64px;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 28px; }
+  header h1 {
+    font-size: 2rem;
+    margin: 0 0 6px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  header p { color: var(--text-dim); margin: 0; font-size: 0.95rem; }
+
+  form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    align-items: end;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 28px;
+  }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  label { font-size: 0.8rem; color: var(--text-dim); }
+  input[type="date"], input[type="time"], input[type="number"], input[type="text"] {
+    background: rgba(0,0,0,0.25);
+    border: 1px solid var(--card-border);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 1rem;
+    color-scheme: dark;
+  }
+  input[type="number"] { width: 130px; }
+  input[type="text"] { width: 170px; }
+  select {
+    background: rgba(0,0,0,0.25);
+    border: 1px solid var(--card-border);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    min-width: 260px;
+    color-scheme: dark;
+  }
+  #searchPlaceBtn {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+  form.chart-form {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    align-items: end;
+  }
+  .form-section-title {
+    color: var(--accent);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+    margin: 4px 0 -4px;
+  }
+  button {
+    background: linear-gradient(90deg, var(--accent-2), var(--accent));
+    border: none;
+    color: #1b1033;
+    font-weight: 700;
+    padding: 11px 22px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+  button:hover { filter: brightness(1.08); }
+
+  .note {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.78rem;
+    margin: -12px 0 28px;
+  }
+
+  .results {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+  }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 18px;
+    padding: 22px;
+  }
+  .card h2 {
+    margin: 0 0 4px;
+    font-size: 1.3rem;
+  }
+  .card .subtitle {
+    color: var(--accent);
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+  .card p.desc {
+    color: var(--text);
+    line-height: 1.5;
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+  .meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 16px;
+    margin-bottom: 16px;
+  }
+  .meta-item .label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-dim);
+    margin-bottom: 2px;
+  }
+  .meta-item .value { font-size: 0.92rem; font-weight: 600; }
+  .qualities {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .chip {
+    background: rgba(245,166,35,0.15);
+    border: 1px solid rgba(245,166,35,0.35);
+    color: var(--accent);
+    font-size: 0.78rem;
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+  .placeholder {
+    text-align: center;
+    color: var(--text-dim);
+    padding: 40px 20px;
+    border: 1px dashed var(--card-border);
+    border-radius: 18px;
+  }
+  .card.full-width { grid-column: 1 / -1; }
+  .card .missing-info {
+    color: var(--text-dim);
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+  [hidden] { display: none !important; }
+
+  .section-divider {
+    border: none;
+    border-top: 1px solid var(--card-border);
+    margin: 44px 0 32px;
+  }
+  .ennea-question {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .ennea-question-text {
+    font-size: 0.92rem;
+    margin-bottom: 10px;
+  }
+  .likert {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .likert-edge {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+  }
+  .likert-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    cursor: pointer;
+  }
+  .likert-option input { cursor: pointer; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Cosmos</h1>
+      <p>Descubre tu signo zodiacal, tu horóscopo chino y tu carta astral</p>
+    </header>
+
+    <form id="form" class="chart-form">
+      <div class="form-row">
+        <div class="field">
+          <label for="birthdate">Fecha de nacimiento</label>
+          <input type="date" id="birthdate" required>
+        </div>
+        <button type="submit">Calcular</button>
+      </div>
+
+      <div class="form-section-title">Datos opcionales para la carta astral</div>
+      <div class="form-row">
+        <div class="field">
+          <label for="birthtime">Hora de nacimiento</label>
+          <input type="time" id="birthtime">
+        </div>
+        <div class="field">
+          <label for="utcOffset">Desfase UTC (ej. -5)</label>
+          <input type="number" id="utcOffset" step="0.5" placeholder="-5">
+        </div>
+        <div class="field">
+          <label for="latitude">Latitud (N=+, S=-)</label>
+          <input type="number" id="latitude" step="any" placeholder="4.71">
+        </div>
+        <div class="field">
+          <label for="longitude">Longitud (E=+, O=-)</label>
+          <input type="number" id="longitude" step="any" placeholder="-74.07">
+        </div>
+        <div class="field">
+          <label for="place">Lugar (opcional)</label>
+          <div style="display:flex; gap:6px;">
+            <input type="text" id="place" placeholder="Bogotá, Colombia">
+            <button type="button" id="searchPlaceBtn">Buscar</button>
+          </div>
+        </div>
+      </div>
+      <div class="form-row" id="placeResultsWrap" hidden>
+        <div class="field">
+          <label for="placeResults">Resultado (elige el correcto)</label>
+          <select id="placeResults"></select>
+        </div>
+      </div>
+      <p class="note" id="placeStatus" style="margin: -4px 0 0;"></p>
+    </form>
+    <p class="note">El horóscopo chino se calcula con el año gregoriano (aproximación simplificada, sin ajuste por el Año Nuevo lunar). La carta astral usa el sistema de casas de Signos Enteros y una posición de la Luna aproximada (±0.3° aprox.); completa hora, desfase UTC, latitud y longitud para calcularla (el botón "Buscar" lugar requiere conexión a internet; también puedes ingresar los datos manualmente).</p>
+
+    <div id="placeholder" class="placeholder">Introduce tu fecha de nacimiento para ver tu perfil astrológico.</div>
+
+    <div class="results" id="results" hidden>
+      <div class="card" id="westernCard">
+        <h2 id="westernName"></h2>
+        <div class="subtitle">Signo Zodiacal</div>
+        <p class="desc" id="westernDesc"></p>
+        <div class="meta-grid">
+          <div class="meta-item">
+            <div class="label">Planeta regente</div>
+            <div class="value" id="westernPlanet"></div>
+          </div>
+          <div class="meta-item">
+            <div class="label">Elemento</div>
+            <div class="value" id="westernElement"></div>
+          </div>
+          <div class="meta-item">
+            <div class="label">Modalidad</div>
+            <div class="value" id="westernModality"></div>
+          </div>
+        </div>
+        <div class="label" style="margin-bottom:6px;">Cualidades principales</div>
+        <div class="qualities" id="westernQualities"></div>
+      </div>
+
+      <div class="card" id="chineseCard">
+        <h2 id="chineseName"></h2>
+        <div class="subtitle">Horóscopo Chino</div>
+        <p class="desc" id="chineseDesc"></p>
+        <div class="meta-grid">
+          <div class="meta-item">
+            <div class="label">Elemento</div>
+            <div class="value" id="chineseElement"></div>
+          </div>
+          <div class="meta-item">
+            <div class="label">Año</div>
+            <div class="value" id="chineseYear"></div>
+          </div>
+        </div>
+        <div class="label" style="margin-bottom:6px;">Cualidades principales</div>
+        <div class="qualities" id="chineseQualities"></div>
+      </div>
+
+      <div class="card full-width" id="chartCard">
+        <h2>Carta Astral</h2>
+        <div class="subtitle">Sol, Luna y Ascendente (sistema de casas: Signos Enteros)</div>
+
+        <p id="chartMissing" class="missing-info">Completa la hora de nacimiento, el desfase UTC, la latitud y la longitud en el formulario para calcular tu carta astral.</p>
+
+        <div id="chartData" hidden>
+          <div class="meta-grid" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));">
+            <div class="meta-item">
+              <div class="label">Signo Solar</div>
+              <div class="value" id="chartSunSign"></div>
+            </div>
+            <div class="meta-item">
+              <div class="label">Casa Solar</div>
+              <div class="value" id="chartSunHouse"></div>
+            </div>
+            <div class="meta-item">
+              <div class="label">Signo Lunar</div>
+              <div class="value" id="chartMoonSign"></div>
+            </div>
+            <div class="meta-item">
+              <div class="label">Casa Lunar</div>
+              <div class="value" id="chartMoonHouse"></div>
+            </div>
+            <div class="meta-item">
+              <div class="label">Signo Ascendente</div>
+              <div class="value" id="chartAscSign"></div>
+            </div>
+          </div>
+          <p class="desc" id="chartInterpretation" style="white-space: pre-line;"></p>
+        </div>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <header>
+      <h1 style="font-size: 1.6rem;">Test de Eneagrama</h1>
+      <p>Responde cada afirmación (1 = muy en desacuerdo, 5 = muy de acuerdo) para descubrir tu eneatipo</p>
+    </header>
+
+    <form id="enneagramForm">
+      <div id="enneagramQuestions" style="display:flex; flex-direction:column; gap:12px; margin-bottom:20px;"></div>
+      <div style="text-align:center;">
+        <button type="submit">Calcular Eneatipo</button>
+      </div>
+    </form>
+    <p class="note">Este test es una aproximación simplificada y no sustituye una evaluación profesional del Eneagrama.</p>
+
+    <div id="enneaPlaceholder" class="placeholder" style="margin-top: 20px;">Responde el test para descubrir tu eneatipo principal, ala, centro y direcciones de integración/desintegración.</div>
+
+    <div class="card full-width" id="enneaCard" hidden style="margin-top: 20px;">
+      <h2 id="enneaName"></h2>
+      <div class="subtitle">Eneatipo Principal</div>
+      <p class="desc" id="enneaDesc"></p>
+      <div class="meta-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+        <div class="meta-item">
+          <div class="label">Ala dominante</div>
+          <div class="value" id="enneaWing"></div>
+        </div>
+        <div class="meta-item">
+          <div class="label">Centro / Tríada</div>
+          <div class="value" id="enneaCenter"></div>
+        </div>
+        <div class="meta-item">
+          <div class="label">Integración (crecimiento)</div>
+          <div class="value" id="enneaIntegration"></div>
+        </div>
+        <div class="meta-item">
+          <div class="label">Desintegración (estrés)</div>
+          <div class="value" id="enneaDisintegration"></div>
+        </div>
+      </div>
+      <div class="label" style="margin-bottom:6px;">Cualidades principales</div>
+      <div class="qualities" id="enneaQualities" style="margin-bottom:16px;"></div>
+      <p class="desc" id="enneaInterpretation" style="white-space: pre-line;"></p>
+      <details style="margin-top:12px; color: var(--text-dim); font-size:0.85rem;">
+        <summary style="cursor:pointer; color: var(--accent);">Ver puntajes por tipo</summary>
+        <div id="enneaScores" style="margin-top:10px; display:flex; flex-direction:column; gap:4px;"></div>
+      </details>
+    </div>
+  </div>
+
+<script>
+  const ZODIAC_SIGNS = [
+    { name: "Capricornio", start: [12, 22], end: [1, 19], planet: "Saturno", element: "Tierra", modality: "Cardinal",
+      qualities: ["Disciplinado", "Ambicioso", "Responsable", "Paciente", "Reservado"],
+      desc: "Capricornio es un signo constante y orientado a metas a largo plazo. Valora el esfuerzo, la estructura y los resultados tangibles, y suele mostrar una madurez que contrasta con su lado más lúdico y seco de humor." },
+    { name: "Acuario", start: [1, 20], end: [2, 18], planet: "Urano", element: "Aire", modality: "Fijo",
+      qualities: ["Innovador", "Independiente", "Humanitario", "Excéntrico", "Idealista"],
+      desc: "Acuario piensa en grande y a menudo por delante de su tiempo. Es independiente hasta la terquedad, con una mirada puesta en el colectivo y una necesidad constante de libertad y originalidad." },
+    { name: "Piscis", start: [2, 19], end: [3, 20], planet: "Neptuno", element: "Agua", modality: "Mutable",
+      qualities: ["Soñador", "Compasivo", "Intuitivo", "Artístico", "Emocional"],
+      desc: "Piscis es el más sensible e imaginativo del zodiaco. Se mueve con empatía y una fuerte conexión emocional con los demás, a veces refugiándose en la fantasía o el arte para procesar el mundo." },
+    { name: "Aries", start: [3, 21], end: [4, 19], planet: "Marte", element: "Fuego", modality: "Cardinal",
+      qualities: ["Valiente", "Enérgico", "Impulsivo", "Líder", "Competitivo"],
+      desc: "Aries abre el ciclo zodiacal con una energía directa y pionera. Le gusta iniciar, competir y actuar rápido, mostrando coraje natural aunque a veces le falte paciencia para los procesos lentos." },
+    { name: "Tauro", start: [4, 20], end: [5, 20], planet: "Venus", element: "Tierra", modality: "Fijo",
+      qualities: ["Paciente", "Práctico", "Sensual", "Terco", "Leal"],
+      desc: "Tauro busca estabilidad, confort y placer sensorial. Es constante y confiable, con un aprecio profundo por lo material y lo bello, aunque puede resistirse fuertemente al cambio." },
+    { name: "Géminis", start: [5, 21], end: [6, 20], planet: "Mercurio", element: "Aire", modality: "Mutable",
+      qualities: ["Curioso", "Comunicativo", "Adaptable", "Versátil", "Ingenioso"],
+      desc: "Géminis vive de la curiosidad y el intercambio de ideas. Es rápido mentalmente, sociable y adaptable a casi cualquier contexto, aunque puede dispersarse entre demasiados intereses a la vez." },
+    { name: "Cáncer", start: [6, 21], end: [7, 22], planet: "Luna", element: "Agua", modality: "Cardinal",
+      qualities: ["Sensible", "Protector", "Intuitivo", "Emocional", "Hogareño"],
+      desc: "Cáncer conecta con el mundo a través de las emociones y los vínculos cercanos. Es protector con los suyos y muy intuitivo, con una memoria emocional profunda y necesidad de un hogar seguro." },
+    { name: "Leo", start: [7, 23], end: [8, 22], planet: "Sol", element: "Fuego", modality: "Fijo",
+      qualities: ["Carismático", "Generoso", "Orgulloso", "Creativo", "Dominante"],
+      desc: "Leo brilla con una presencia cálida y magnética. Es generoso y creativo, disfruta ser reconocido y liderar, y pone corazón y lealtad en todo lo que le apasiona." },
+    { name: "Virgo", start: [8, 23], end: [9, 22], planet: "Mercurio", element: "Tierra", modality: "Mutable",
+      qualities: ["Analítico", "Meticuloso", "Servicial", "Perfeccionista", "Práctico"],
+      desc: "Virgo se distingue por su mente analítica y su afán de mejora continua. Es servicial y detallista, con un enfoque práctico para resolver problemas, aunque puede ser muy exigente consigo mismo." },
+    { name: "Libra", start: [9, 23], end: [10, 22], planet: "Venus", element: "Aire", modality: "Cardinal",
+      qualities: ["Diplomático", "Equilibrado", "Sociable", "Indeciso", "Estético"],
+      desc: "Libra busca armonía, belleza y justicia en sus relaciones. Es diplomático y sociable por naturaleza, sopesando siempre distintas perspectivas antes de decidir." },
+    { name: "Escorpio", start: [10, 23], end: [11, 21], planet: "Plutón", element: "Agua", modality: "Fijo",
+      qualities: ["Intenso", "Apasionado", "Misterioso", "Decidido", "Leal"],
+      desc: "Escorpio vive con una intensidad emocional profunda y una voluntad férrea. Es leal y apasionado con quienes se gana su confianza, y no teme enfrentar lo oculto o lo transformador." },
+    { name: "Sagitario", start: [11, 22], end: [12, 21], planet: "Júpiter", element: "Fuego", modality: "Mutable",
+      qualities: ["Aventurero", "Optimista", "Filosófico", "Honesto", "Inquieto"],
+      desc: "Sagitario busca expandir horizontes, ya sea viajando, estudiando o filosofando sobre la vida. Es optimista y directo, con una sed constante de libertad y nuevas experiencias." }
+  ];
+
+  const CHINESE_ANIMALS = [
+    { name: "Rata", qualities: ["Ingeniosa", "Adaptable", "Ambiciosa", "Sociable", "Astuta"],
+      desc: "La Rata es rápida de mente y muy adaptable, capaz de encontrar oportunidades donde otros no las ven. Es ambiciosa y encantadora en su trato social, aunque puede volverse calculadora bajo presión." },
+    { name: "Buey", qualities: ["Perseverante", "Honesto", "Trabajador", "Metódico", "Terco"],
+      desc: "El Buey avanza con paso firme y constante hacia sus metas. Es honesto y confiable, prefiere el método y la disciplina al riesgo, aunque su terquedad puede dificultar los cambios de rumbo." },
+    { name: "Tigre", qualities: ["Valiente", "Carismático", "Impulsivo", "Independiente", "Competitivo"],
+      desc: "El Tigre irradia valentía y magnetismo natural. Actúa por instinto y le cuesta seguir órdenes ajenas, prefiriendo trazar su propio camino con audacia." },
+    { name: "Conejo", qualities: ["Amable", "Diplomático", "Prudente", "Sensible", "Elegante"],
+      desc: "El Conejo busca la paz y la armonía por encima del conflicto. Es amable y diplomático, con un gusto refinado, aunque prefiere evitar la confrontación directa siempre que puede." },
+    { name: "Dragón", qualities: ["Carismático", "Ambicioso", "Idealista", "Enérgico", "Orgulloso"],
+      desc: "El Dragón es la figura más carismática del zodiaco chino, con una energía imparable y grandes aspiraciones. Inspira a otros de forma natural, aunque su orgullo puede chocar con quienes lo rodean." },
+    { name: "Serpiente", qualities: ["Sabia", "Intuitiva", "Reservada", "Estratégica", "Elegante"],
+      desc: "La Serpiente observa antes de actuar, confiando en su intuición y su capacidad de análisis. Es reservada y elegante, con una mente estratégica que rara vez revela sus verdaderas intenciones." },
+    { name: "Caballo", qualities: ["Libre", "Enérgico", "Sociable", "Impaciente", "Aventurero"],
+      desc: "El Caballo necesita movimiento y libertad constantes. Es sociable y enérgico, siempre en busca de la próxima aventura, aunque la rutina y las ataduras le resultan difíciles de sobrellevar." },
+    { name: "Cabra", qualities: ["Creativa", "Empática", "Tranquila", "Artística", "Dependiente"],
+      desc: "La Cabra tiene una sensibilidad artística marcada y una naturaleza empática. Prefiere ambientes tranquilos y armoniosos, y valora mucho el apoyo y la compañía de quienes ama." },
+    { name: "Mono", qualities: ["Ingenioso", "Curioso", "Divertido", "Versátil", "Travieso"],
+      desc: "El Mono destaca por su ingenio rápido y su curiosidad insaciable. Es divertido y versátil, capaz de resolver problemas con creatividad, aunque su lado travieso a veces lo mete en líos." },
+    { name: "Gallo", qualities: ["Observador", "Organizado", "Franco", "Trabajador", "Orgulloso"],
+      desc: "El Gallo es meticuloso y organizado, con un ojo agudo para el detalle. Habla con franqueza y se enorgullece de su trabajo, buscando siempre hacer las cosas de forma correcta y visible." },
+    { name: "Perro", qualities: ["Leal", "Honesto", "Protector", "Justo", "Ansioso"],
+      desc: "El Perro es el guardián leal del zodiaco chino, guiado por un fuerte sentido de la justicia. Es honesto y protector con los suyos, aunque tiende a preocuparse en exceso por lo que podría salir mal." },
+    { name: "Cerdo", qualities: ["Generoso", "Sincero", "Tolerante", "Optimista", "Disfrutón"],
+      desc: "El Cerdo disfruta de los placeres simples de la vida con generosidad y buen humor. Es sincero y tolerante con los demás, y suele ver el lado positivo incluso en las situaciones difíciles." }
+  ];
+
+  const CHINESE_ELEMENTS = [
+    { name: "Metal", qualities: ["Firme", "Ambicioso", "Directo"], desc: "aporta firmeza, determinación y un fuerte sentido de la ambición." },
+    { name: "Agua", qualities: ["Flexible", "Intuitivo", "Diplomático"], desc: "aporta fluidez, intuición y facilidad para adaptarse a los cambios." },
+    { name: "Madera", qualities: ["Generoso", "Cooperativo", "Idealista"], desc: "aporta crecimiento, generosidad y una visión idealista de las relaciones." },
+    { name: "Fuego", qualities: ["Apasionado", "Dinámico", "Impulsivo"], desc: "aporta pasión, dinamismo y una energía impulsiva y expresiva." },
+    { name: "Tierra", qualities: ["Estable", "Práctico", "Confiable"], desc: "aporta estabilidad, sentido práctico y una naturaleza confiable." }
+  ];
+  // Índice de elemento chino según el último dígito del año: 0,1=Metal 2,3=Agua 4,5=Madera 6,7=Fuego 8,9=Tierra
+  const ELEMENT_BY_LAST_DIGIT = [0, 0, 1, 1, 2, 2, 3, 3, 4, 4];
+
+  // Signos en orden zodiacal por longitud eclíptica (cada uno ocupa 30°, empezando en Aries = 0°)
+  const SIGNS_BY_LONGITUDE = ["Aries", "Tauro", "Géminis", "Cáncer", "Leo", "Virgo",
+    "Libra", "Escorpio", "Sagitario", "Capricornio", "Acuario", "Piscis"];
+
+  const HOUSE_MEANINGS = [
+    { title: "Identidad", theme: "tu personalidad y la imagen que proyectas ante el mundo" },
+    { title: "Recursos", theme: "tus valores, tu dinero y tu autoestima" },
+    { title: "Comunicación", theme: "el aprendizaje, la comunicación y el entorno cercano" },
+    { title: "Hogar", theme: "la familia, el hogar y las raíces emocionales" },
+    { title: "Creatividad", theme: "la creatividad, el romance y el disfrute personal" },
+    { title: "Rutina y salud", theme: "el trabajo diario, la salud y los hábitos" },
+    { title: "Relaciones", theme: "las relaciones de pareja y las asociaciones" },
+    { title: "Transformación", theme: "la transformación, la intimidad y los recursos compartidos" },
+    { title: "Expansión", theme: "los viajes, el estudio y la búsqueda de sentido" },
+    { title: "Vocación", theme: "la carrera, la vocación y el estatus público" },
+    { title: "Comunidad", theme: "las amistades, los grupos y los proyectos futuros" },
+    { title: "Interioridad", theme: "la vida interior, el descanso y el cierre de ciclos" }
+  ];
+
+  function deg2rad(d) { return d * Math.PI / 180; }
+  function rad2deg(r) { return r * 180 / Math.PI; }
+  function normalizeDegrees(deg) { let d = deg % 360; if (d < 0) d += 360; return d; }
+
+  function toJulianDay(year, month, day, hourUT) {
+    let Y = year, M = month;
+    if (M <= 2) { Y -= 1; M += 12; }
+    const A = Math.floor(Y / 100);
+    const B = 2 - A + Math.floor(A / 4);
+    return Math.floor(365.25 * (Y + 4716)) + Math.floor(30.6001 * (M + 1)) + day + hourUT / 24 + B - 1524.5;
+  }
+
+  function sunEclipticLongitude(T) {
+    const L0 = normalizeDegrees(280.46646 + 36000.76983 * T + 0.0003032 * T * T);
+    const M = normalizeDegrees(357.52911 + 35999.05029 * T - 0.0001537 * T * T);
+    const Mrad = deg2rad(M);
+    const C = (1.914602 - 0.004817 * T - 0.000014 * T * T) * Math.sin(Mrad)
+      + (0.019993 - 0.000101 * T) * Math.sin(2 * Mrad)
+      + 0.000289 * Math.sin(3 * Mrad);
+    return normalizeDegrees(L0 + C);
+  }
+
+  function moonEclipticLongitude(T) {
+    const Lp = normalizeDegrees(218.3164477 + 481267.88123421 * T - 0.0015786 * T * T);
+    const D = deg2rad(normalizeDegrees(297.8501921 + 445267.1114034 * T - 0.0018819 * T * T));
+    const M = deg2rad(normalizeDegrees(357.5291092 + 35999.0502909 * T - 0.0001536 * T * T));
+    const Mp = deg2rad(normalizeDegrees(134.9633964 + 477198.8675055 * T + 0.0087414 * T * T));
+    const F = deg2rad(normalizeDegrees(93.2720950 + 483202.0175233 * T - 0.0036539 * T * T));
+
+    let dl = 0;
+    dl += 6.288774 * Math.sin(Mp);
+    dl += 1.274027 * Math.sin(2 * D - Mp);
+    dl += 0.658314 * Math.sin(2 * D);
+    dl += 0.213618 * Math.sin(2 * Mp);
+    dl -= 0.185116 * Math.sin(M);
+    dl -= 0.114332 * Math.sin(2 * F);
+    dl += 0.058793 * Math.sin(2 * D - 2 * Mp);
+    dl += 0.057066 * Math.sin(2 * D - M - Mp);
+    dl += 0.053322 * Math.sin(2 * D + Mp);
+    dl += 0.045758 * Math.sin(2 * D - M);
+    dl -= 0.040923 * Math.sin(M - Mp);
+    dl -= 0.034720 * Math.sin(D);
+    dl -= 0.030383 * Math.sin(M + Mp);
+
+    return normalizeDegrees(Lp + dl);
+  }
+
+  function obliquity(T) {
+    return 23.439291 - 0.0130042 * T - 0.00000016 * T * T + 0.000000504 * T * T * T;
+  }
+
+  function greenwichSiderealTime(JD) {
+    const T = (JD - 2451545.0) / 36525;
+    const gmst = 280.46061837 + 360.98564736629 * (JD - 2451545.0) + 0.000387933 * T * T - (T * T * T) / 38710000;
+    return normalizeDegrees(gmst);
+  }
+
+  function ascendantLongitude(ramcDeg, latDeg, epsDeg) {
+    const ramc = deg2rad(ramcDeg);
+    const eps = deg2rad(epsDeg);
+    const lat = deg2rad(latDeg);
+    const y = Math.cos(ramc);
+    const x = -(Math.sin(eps) * Math.tan(lat) + Math.cos(eps) * Math.sin(ramc));
+    return normalizeDegrees(rad2deg(Math.atan2(y, x)));
+  }
+
+  function getSignByLongitude(longitude) {
+    const index = Math.floor(normalizeDegrees(longitude) / 30) % 12;
+    const name = SIGNS_BY_LONGITUDE[index];
+    return ZODIAC_SIGNS.find(s => s.name === name);
+  }
+
+  function computeBirthChart({ year, month, day, hour, minute, utcOffset, latitude, longitude }) {
+    const utHour = (hour + minute / 60) - utcOffset;
+    const JD = toJulianDay(year, month, day, utHour);
+    const T = (JD - 2451545.0) / 36525;
+
+    const sunLon = sunEclipticLongitude(T);
+    const moonLon = moonEclipticLongitude(T);
+    const eps = obliquity(T);
+    const gmst = greenwichSiderealTime(JD);
+    const ramc = normalizeDegrees(gmst + longitude); // longitud positiva = Este
+    const ascLon = ascendantLongitude(ramc, latitude, eps);
+
+    const sunSign = getSignByLongitude(sunLon);
+    const moonSign = getSignByLongitude(moonLon);
+    const ascSign = getSignByLongitude(ascLon);
+
+    const ascIndex = SIGNS_BY_LONGITUDE.indexOf(ascSign.name);
+    const sunIndex = SIGNS_BY_LONGITUDE.indexOf(sunSign.name);
+    const moonIndex = SIGNS_BY_LONGITUDE.indexOf(moonSign.name);
+
+    const sunHouse = ((sunIndex - ascIndex + 12) % 12) + 1;
+    const moonHouse = ((moonIndex - ascIndex + 12) % 12) + 1;
+
+    return { sunSign, sunHouse, moonSign, moonHouse, ascSign };
+  }
+
+  function buildChartInterpretation(chart) {
+    const sunHouseInfo = HOUSE_MEANINGS[chart.sunHouse - 1];
+    const moonHouseInfo = HOUSE_MEANINGS[chart.moonHouse - 1];
+    return `Tu Sol está en ${chart.sunSign.name}, en la Casa ${chart.sunHouse} (${sunHouseInfo.title}). Esto describe el núcleo de tu identidad: ${chart.sunSign.desc} Esta energía solar se enfoca especialmente en ${sunHouseInfo.theme}.
+
+Tu Luna está en ${chart.moonSign.name}, en la Casa ${chart.moonHouse} (${moonHouseInfo.title}). La Luna representa tu mundo emocional e instintivo, así que sientes y reaccionas con rasgos propios de ${chart.moonSign.name}: ${chart.moonSign.desc} A nivel emocional, esto se vive sobre todo en torno a ${moonHouseInfo.theme}.
+
+Tu Ascendente está en ${chart.ascSign.name}, el signo que marca cómo te presentas ante los demás en un primer momento: ${chart.ascSign.desc}`;
+  }
+
+  // --- Búsqueda de lugar (geocodificación) y desfase UTC automático ---
+  let placeSearchResults = [];
+  let selectedTimezone = null;
+
+  function computeUtcOffsetHours(timezone, dateStr, timeStr) {
+    const [y, m, d] = dateStr.split("-").map(Number);
+    const [hh, mm] = (timeStr || "12:00").split(":").map(Number);
+    const instant = new Date(Date.UTC(y, m - 1, d, hh, mm));
+    const dtf = new Intl.DateTimeFormat("en-US", { timeZone: timezone, timeZoneName: "longOffset" });
+    const part = dtf.formatToParts(instant).find(p => p.type === "timeZoneName");
+    if (!part) throw new Error("No se pudo determinar el desfase UTC");
+    const match = part.value.match(/GMT([+-])(\d{2}):(\d{2})/);
+    if (!match) {
+      if (part.value === "GMT") return 0;
+      throw new Error("Formato de desfase no reconocido");
+    }
+    const sign = match[1] === "-" ? -1 : 1;
+    const hours = parseInt(match[2], 10);
+    const minutes = parseInt(match[3], 10);
+    return sign * (hours + minutes / 60);
+  }
+
+  function refreshUtcOffsetFromTimezone() {
+    if (!selectedTimezone) return;
+    const dateVal = document.getElementById("birthdate").value;
+    if (!dateVal) return;
+    const timeVal = document.getElementById("birthtime").value || "12:00";
+    try {
+      const offset = computeUtcOffsetHours(selectedTimezone, dateVal, timeVal);
+      document.getElementById("utcOffset").value = offset;
+    } catch (err) {
+      // Si falla, se deja el campo para edición manual.
+    }
+  }
+
+  function applySelectedPlace(index) {
+    const r = placeSearchResults[index];
+    if (!r) return;
+    document.getElementById("latitude").value = r.latitude.toFixed(4);
+    document.getElementById("longitude").value = r.longitude.toFixed(4);
+    selectedTimezone = r.timezone;
+    refreshUtcOffsetFromTimezone();
+  }
+
+  document.getElementById("searchPlaceBtn").addEventListener("click", async () => {
+    const query = document.getElementById("place").value.trim();
+    const status = document.getElementById("placeStatus");
+    const wrap = document.getElementById("placeResultsWrap");
+    const select = document.getElementById("placeResults");
+
+    if (!query) { status.textContent = "Escribe un lugar para buscar."; return; }
+
+    status.textContent = "Buscando lugar...";
+    wrap.hidden = true;
+    select.innerHTML = "";
+
+    try {
+      const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=8&language=es&format=json`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const results = data.results || [];
+
+      if (results.length === 0) {
+        status.textContent = "No se encontraron resultados. Puedes ingresar latitud/longitud/UTC manualmente.";
+        return;
+      }
+
+      placeSearchResults = results;
+      results.forEach((r, i) => {
+        const option = document.createElement("option");
+        const label = [r.name, r.admin1, r.country].filter(Boolean).join(", ");
+        option.value = i;
+        option.textContent = `${label} (${r.latitude.toFixed(2)}, ${r.longitude.toFixed(2)})`;
+        select.appendChild(option);
+      });
+
+      wrap.hidden = false;
+      status.textContent = "Selecciona el lugar correcto de la lista; latitud, longitud y desfase UTC se completan automáticamente.";
+      applySelectedPlace(0);
+    } catch (err) {
+      status.textContent = "No se pudo buscar el lugar (revisa tu conexión a internet). Ingresa latitud/longitud/UTC manualmente.";
+    }
+  });
+
+  document.getElementById("place").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      document.getElementById("searchPlaceBtn").click();
+    }
+  });
+
+  document.getElementById("placeResults").addEventListener("change", (e) => {
+    applySelectedPlace(parseInt(e.target.value, 10));
+  });
+
+  document.getElementById("birthdate").addEventListener("change", refreshUtcOffsetFromTimezone);
+  document.getElementById("birthtime").addEventListener("change", refreshUtcOffsetFromTimezone);
+
+  // --- Test de Eneagrama ---
+  const ENNEAGRAM_TYPES = {
+    1: { name: "El Reformador", center: "Instintivo", qualities: ["Íntegro", "Meticuloso", "Responsable", "Crítico", "Idealista"],
+      fear: "Ser corrupto, malo o defectuoso.", desire: "Ser bueno, tener integridad y estar en equilibrio.",
+      desc: "Los Uno buscan la perfección y actúan guiados por un fuerte sentido del deber y la ética. Son organizados, disciplinados y muy autoexigentes, con una voz interior crítica que señala lo que \"debería\" hacerse. Cuando están sanos son sabios y realistas; bajo estrés pueden volverse rígidos y críticos." },
+    2: { name: "El Ayudador", center: "Emocional", qualities: ["Generoso", "Empático", "Complaciente", "Cálido", "Orgulloso"],
+      fear: "Ser indigno de amor si no ayuda a otros.", desire: "Sentirse amado y necesitado.",
+      desc: "Los Dos se orientan hacia las necesidades de los demás y encuentran su valor en dar amor y apoyo. Son cálidos, generosos y perceptivos frente a las emociones ajenas, aunque pueden descuidar sus propias necesidades y buscar reconocimiento a cambio de su ayuda." },
+    3: { name: "El Triunfador", center: "Emocional", qualities: ["Ambicioso", "Eficiente", "Adaptable", "Competitivo", "Orientado a metas"],
+      fear: "Ser sin valor fuera de sus logros.", desire: "Sentirse valioso y admirado.",
+      desc: "Los Tres se centran en el logro, la imagen y el éxito. Son eficientes, motivados y capaces de adaptarse rápidamente para alcanzar sus objetivos, aunque pueden perder contacto con sus propios sentimientos al priorizar la imagen que proyectan." },
+    4: { name: "El Individualista", center: "Emocional", qualities: ["Sensible", "Creativo", "Introspectivo", "Melancólico", "Auténtico"],
+      fear: "No tener identidad ni significado personal.", desire: "Encontrar su propia identidad y significado interior.",
+      desc: "Los Cuatro buscan profundidad, autenticidad y significado personal. Son creativos y emocionalmente intensos, con una rica vida interior, aunque tienden a sentirse diferentes de los demás y pueden idealizar lo ausente o lo que falta." },
+    5: { name: "El Investigador", center: "Mental", qualities: ["Analítico", "Reservado", "Curioso", "Independiente", "Observador"],
+      fear: "Ser invadido, incapaz o incompetente.", desire: "Ser competente y comprender el mundo.",
+      desc: "Los Cinco buscan conocimiento y comprensión antes de actuar. Son observadores, independientes y valoran mucho su privacidad y su energía, prefiriendo retirarse a analizar en lugar de involucrarse emocionalmente de forma inmediata." },
+    6: { name: "El Leal", center: "Mental", qualities: ["Leal", "Prevenido", "Responsable", "Ansioso", "Comprometido"],
+      fear: "Quedarse sin apoyo ni guía.", desire: "Tener seguridad y apoyo.",
+      desc: "Los Seis buscan seguridad y certeza frente a un mundo que perciben incierto. Son leales, responsables y buenos para anticipar riesgos, aunque pueden oscilar entre la duda y la necesidad de autoridad o de rebelarse contra ella." },
+    7: { name: "El Entusiasta", center: "Mental", qualities: ["Optimista", "Espontáneo", "Versátil", "Disperso", "Aventurero"],
+      fear: "Quedar atrapado en el dolor o la privación.", desire: "Estar satisfecho y contento, evitando el sufrimiento.",
+      desc: "Los Siete buscan experiencias nuevas y placenteras, evitando el dolor y el aburrimiento. Son optimistas, entusiastas y llenos de ideas, aunque pueden dispersarse fácilmente y evitar profundizar en emociones difíciles." },
+    8: { name: "El Retador", center: "Instintivo", qualities: ["Fuerte", "Decidido", "Protector", "Confrontador", "Directo"],
+      fear: "Ser controlado o vulnerable ante otros.", desire: "Protegerse y decidir su propio destino.",
+      desc: "Los Ocho buscan tener el control de su vida y proyectan fuerza y seguridad. Son directos, protectores con los suyos y no temen el conflicto, aunque pueden volverse dominantes o intimidantes cuando se sienten vulnerables." },
+    9: { name: "El Pacificador", center: "Instintivo", qualities: ["Tranquilo", "Conciliador", "Complaciente", "Disperso", "Receptivo"],
+      fear: "Perder la conexión y fragmentarse.", desire: "Mantener la paz interior y la armonía.",
+      desc: "Los Nueve buscan armonía y evitan el conflicto, fusionándose fácilmente con las agendas de los demás. Son receptivos, pacientes y buenos mediadores, aunque pueden postergar sus propias prioridades y evitar el conflicto necesario." }
+  };
+
+  const ENNEAGRAM_CENTERS = {
+    Instintivo: { label: "Instintivo (Cuerpo · Ira)", desc: "reacciona desde el instinto y la gestión de la ira y el control; le preocupa la autonomía frente al entorno." },
+    Emocional: { label: "Emocional (Corazón · Vergüenza)", desc: "reacciona desde la imagen y la emoción; le preocupa su valor propio y cómo es percibido por los demás." },
+    Mental: { label: "Mental (Cabeza · Miedo)", desc: "reacciona desde el análisis y la anticipación; le preocupa la seguridad y la certeza frente al miedo." }
+  };
+
+  const ENNEAGRAM_WINGS = { 1: [9, 2], 2: [1, 3], 3: [2, 4], 4: [3, 5], 5: [4, 6], 6: [5, 7], 7: [6, 8], 8: [7, 9], 9: [8, 1] };
+  const ENNEAGRAM_INTEGRATION = { 1: 7, 2: 4, 3: 6, 4: 1, 5: 8, 6: 9, 7: 5, 8: 2, 9: 3 };
+  const ENNEAGRAM_DISINTEGRATION = { 1: 4, 2: 8, 3: 9, 4: 2, 5: 7, 6: 3, 7: 1, 8: 5, 9: 6 };
+
+  const ENNEAGRAM_QUESTIONS = {
+    1: [
+      "Me esfuerzo por hacer las cosas correctamente y me cuesta aceptar los errores.",
+      "Tengo un fuerte sentido de lo que está bien y lo que está mal.",
+      "Suelo ser autocrítico/a y crítico/a con los demás cuando algo no se hace bien.",
+      "Me gusta que las cosas estén ordenadas, organizadas y en su lugar.",
+      "Siento una voz interior que me dice constantemente cómo \"debería\" actuar."
+    ],
+    2: [
+      "Me resulta fácil detectar las necesidades de los demás antes que las mías.",
+      "Disfruto ayudando a otros y sintiéndome necesario/a para ellos.",
+      "A veces doy más de lo que puedo para ganarme el afecto de los demás.",
+      "Me cuesta pedir ayuda; prefiero ser quien la da.",
+      "Busco sentirme querido/a a través de mis actos de generosidad."
+    ],
+    3: [
+      "Me motiva mucho alcanzar metas y ser reconocido/a por mis logros.",
+      "Adapto fácilmente mi imagen según la situación para causar una buena impresión.",
+      "Me cuesta detenerme; siempre estoy enfocado/a en el siguiente objetivo.",
+      "El éxito y la eficiencia son muy importantes para mi autoestima.",
+      "Prefiero mostrar una imagen de éxito antes que mostrar mis dudas o fracasos."
+    ],
+    4: [
+      "Siento que soy diferente a los demás de una manera significativa.",
+      "Mi mundo emocional es intenso y profundo, y valoro la autenticidad.",
+      "Me atrae lo melancólico, lo estético y lo que tiene un significado profundo.",
+      "A veces idealizo lo que no tengo o lo que está ausente.",
+      "Busco expresar quién soy realmente a través de la creatividad o el sentimiento."
+    ],
+    5: [
+      "Prefiero observar y analizar antes de involucrarme en una situación.",
+      "Necesito tiempo y espacio a solas para recargar energía.",
+      "Valoro mucho el conocimiento y la comprensión de cómo funcionan las cosas.",
+      "Me cuesta compartir mis emociones o mi vida privada con otros.",
+      "Prefiero mantener cierta distancia para no sentirme invadido/a por los demás."
+    ],
+    6: [
+      "Suelo anticipar problemas y prepararme para lo que podría salir mal.",
+      "Valoro mucho la lealtad y el compromiso en mis relaciones.",
+      "A veces dudo de mis propias decisiones y busco la opinión de otros.",
+      "Me preocupa no tener suficiente apoyo o seguridad.",
+      "Puedo desconfiar de la autoridad o, por el contrario, apoyarme fuertemente en ella."
+    ],
+    7: [
+      "Me gusta tener muchas opciones y experiencias nuevas disponibles.",
+      "Tiendo a evitar el malestar buscando distracciones o planes divertidos.",
+      "Soy optimista y me entusiasmo fácilmente con nuevas ideas.",
+      "Me cuesta comprometerme con una sola cosa cuando hay tantas posibilidades.",
+      "Prefiero centrarme en lo positivo antes que quedarme en el dolor o la rutina."
+    ],
+    8: [
+      "Me gusta tener el control de las situaciones importantes en mi vida.",
+      "No temo el conflicto directo cuando es necesario defender mi postura.",
+      "Protejo con fuerza a las personas que considero mías.",
+      "Prefiero mostrar fortaleza antes que mostrar vulnerabilidad.",
+      "Tiendo a tomar el mando de forma natural en grupos o situaciones difíciles."
+    ],
+    9: [
+      "Prefiero mantener la paz antes que entrar en conflicto.",
+      "Me adapto fácilmente a los deseos o planes de los demás.",
+      "A veces postergo decisiones importantes o evito confrontar mis propias prioridades.",
+      "Me cuesta identificar con claridad lo que realmente quiero.",
+      "Busco armonía y estabilidad en mi entorno."
+    ]
+  };
+
+  let enneagramQuestionList = [];
+
+  function buildEnneagramQuestions() {
+    const container = document.getElementById("enneagramQuestions");
+    const list = [];
+    Object.entries(ENNEAGRAM_QUESTIONS).forEach(([type, texts]) => {
+      texts.forEach((text, i) => list.push({ type: parseInt(type, 10), name: `ennea_${type}_${i}`, text }));
+    });
+    for (let i = list.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [list[i], list[j]] = [list[j], list[i]];
+    }
+
+    list.forEach((q, idx) => {
+      const wrap = document.createElement("div");
+      wrap.className = "ennea-question";
+
+      const label = document.createElement("div");
+      label.className = "ennea-question-text";
+      label.textContent = `${idx + 1}. ${q.text}`;
+      wrap.appendChild(label);
+
+      const likert = document.createElement("div");
+      likert.className = "likert";
+
+      const lowLabel = document.createElement("span");
+      lowLabel.className = "likert-edge";
+      lowLabel.textContent = "Desacuerdo";
+      likert.appendChild(lowLabel);
+
+      for (let v = 1; v <= 5; v++) {
+        const optLabel = document.createElement("label");
+        optLabel.className = "likert-option";
+        const input = document.createElement("input");
+        input.type = "radio";
+        input.name = q.name;
+        input.value = String(v);
+        if (v === 1) input.required = true;
+        optLabel.appendChild(input);
+        const span = document.createElement("span");
+        span.textContent = String(v);
+        optLabel.appendChild(span);
+        likert.appendChild(optLabel);
+      }
+
+      const highLabel = document.createElement("span");
+      highLabel.className = "likert-edge";
+      highLabel.textContent = "Acuerdo";
+      likert.appendChild(highLabel);
+
+      wrap.appendChild(likert);
+      container.appendChild(wrap);
+    });
+
+    enneagramQuestionList = list;
+  }
+
+  function buildEnneagramInterpretation(mainId, wingId, integrationId, disintegrationId) {
+    const main = ENNEAGRAM_TYPES[mainId];
+    const wing = ENNEAGRAM_TYPES[wingId];
+    const integration = ENNEAGRAM_TYPES[integrationId];
+    const disintegration = ENNEAGRAM_TYPES[disintegrationId];
+    const center = ENNEAGRAM_CENTERS[main.center];
+
+    return `${main.desc}
+
+Miedo básico: ${main.fear} Deseo básico: ${main.desire}
+
+Tu ala dominante (Tipo ${wingId} – ${wing.name}) matiza tu personalidad, aportando rasgos como ${wing.qualities.slice(0, 3).join(", ").toLowerCase()}.
+
+Perteneces al centro ${center.label}: ${center.desc}
+
+En momentos de seguridad y crecimiento personal, tiendes a integrar cualidades del Tipo ${integrationId} (${integration.name}), como ${integration.qualities.slice(0, 3).join(", ").toLowerCase()}. Bajo estrés, en cambio, puedes desplazarte hacia patrones del Tipo ${disintegrationId} (${disintegration.name}), como ${disintegration.qualities.slice(0, 3).join(", ").toLowerCase()}.`;
+  }
+
+  buildEnneagramQuestions();
+
+  document.getElementById("enneagramForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const scores = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 };
+    enneagramQuestionList.forEach(q => {
+      const checked = document.querySelector(`input[name="${q.name}"]:checked`);
+      const value = checked ? parseInt(checked.value, 10) : 3;
+      scores[q.type] += value;
+    });
+
+    let mainId = 1;
+    for (let t = 2; t <= 9; t++) {
+      if (scores[t] > scores[mainId]) mainId = t;
+    }
+
+    const [wingA, wingB] = ENNEAGRAM_WINGS[mainId];
+    const wingId = scores[wingA] >= scores[wingB] ? wingA : wingB;
+    const integrationId = ENNEAGRAM_INTEGRATION[mainId];
+    const disintegrationId = ENNEAGRAM_DISINTEGRATION[mainId];
+
+    const main = ENNEAGRAM_TYPES[mainId];
+    const center = ENNEAGRAM_CENTERS[main.center];
+
+    document.getElementById("enneaName").textContent = `Tipo ${mainId} – ${main.name}`;
+    document.getElementById("enneaDesc").textContent = main.desc;
+    document.getElementById("enneaWing").textContent = `${mainId}w${wingId} (Tipo ${wingId} – ${ENNEAGRAM_TYPES[wingId].name})`;
+    document.getElementById("enneaCenter").textContent = center.label;
+    document.getElementById("enneaIntegration").textContent = `Tipo ${integrationId} – ${ENNEAGRAM_TYPES[integrationId].name}`;
+    document.getElementById("enneaDisintegration").textContent = `Tipo ${disintegrationId} – ${ENNEAGRAM_TYPES[disintegrationId].name}`;
+    renderChips(document.getElementById("enneaQualities"), main.qualities);
+    document.getElementById("enneaInterpretation").textContent = buildEnneagramInterpretation(mainId, wingId, integrationId, disintegrationId);
+
+    const scoresContainer = document.getElementById("enneaScores");
+    scoresContainer.innerHTML = "";
+    Object.keys(scores)
+      .map(Number)
+      .sort((a, b) => scores[b] - scores[a])
+      .forEach(t => {
+        const row = document.createElement("div");
+        row.textContent = `Tipo ${t} (${ENNEAGRAM_TYPES[t].name}): ${scores[t]} puntos`;
+        scoresContainer.appendChild(row);
+      });
+
+    document.getElementById("enneaPlaceholder").hidden = true;
+    document.getElementById("enneaCard").hidden = false;
+  });
+
+  function getWesternSign(month, day) {
+    const md = month * 100 + day;
+    return ZODIAC_SIGNS.find(sign => {
+      const startMd = sign.start[0] * 100 + sign.start[1];
+      const endMd = sign.end[0] * 100 + sign.end[1];
+      if (startMd <= endMd) return md >= startMd && md <= endMd;
+      return md >= startMd || md <= endMd; // wraps around new year (Capricornio)
+    });
+  }
+
+  function getChineseHoroscope(year) {
+    const animalIndex = ((year - 4) % 12 + 12) % 12;
+    const elementIndex = ELEMENT_BY_LAST_DIGIT[((year % 10) + 10) % 10];
+    return { animal: CHINESE_ANIMALS[animalIndex], element: CHINESE_ELEMENTS[elementIndex] };
+  }
+
+  function renderChips(container, items) {
+    container.innerHTML = "";
+    items.forEach(item => {
+      const chip = document.createElement("span");
+      chip.className = "chip";
+      chip.textContent = item;
+      container.appendChild(chip);
+    });
+  }
+
+  document.getElementById("form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const value = document.getElementById("birthdate").value;
+    if (!value) return;
+    const [year, month, day] = value.split("-").map(Number);
+
+    const sign = getWesternSign(month, day);
+    document.getElementById("westernName").textContent = sign.name;
+    document.getElementById("westernDesc").textContent = sign.desc;
+    document.getElementById("westernPlanet").textContent = sign.planet;
+    document.getElementById("westernElement").textContent = sign.element;
+    document.getElementById("westernModality").textContent = sign.modality;
+    renderChips(document.getElementById("westernQualities"), sign.qualities);
+
+    const { animal, element } = getChineseHoroscope(year);
+    document.getElementById("chineseName").textContent = animal.name;
+    document.getElementById("chineseDesc").textContent =
+      `${animal.desc} El elemento ${element.name} ${element.desc}`;
+    document.getElementById("chineseElement").textContent = element.name;
+    document.getElementById("chineseYear").textContent = year;
+    renderChips(document.getElementById("chineseQualities"), [...animal.qualities, ...element.qualities]);
+
+    const timeValue = document.getElementById("birthtime").value;
+    const utcOffsetValue = document.getElementById("utcOffset").value;
+    const latitudeValue = document.getElementById("latitude").value;
+    const longitudeValue = document.getElementById("longitude").value;
+
+    const hasChartData = timeValue && utcOffsetValue !== "" && latitudeValue !== "" && longitudeValue !== "";
+
+    if (hasChartData) {
+      const [hour, minute] = timeValue.split(":").map(Number);
+      const chart = computeBirthChart({
+        year, month, day, hour, minute,
+        utcOffset: parseFloat(utcOffsetValue),
+        latitude: parseFloat(latitudeValue),
+        longitude: parseFloat(longitudeValue)
+      });
+
+      document.getElementById("chartSunSign").textContent = chart.sunSign.name;
+      document.getElementById("chartSunHouse").textContent = `Casa ${chart.sunHouse}`;
+      document.getElementById("chartMoonSign").textContent = chart.moonSign.name;
+      document.getElementById("chartMoonHouse").textContent = `Casa ${chart.moonHouse}`;
+      document.getElementById("chartAscSign").textContent = chart.ascSign.name;
+      document.getElementById("chartInterpretation").textContent = buildChartInterpretation(chart);
+
+      document.getElementById("chartMissing").hidden = true;
+      document.getElementById("chartData").hidden = false;
+    } else {
+      document.getElementById("chartMissing").hidden = false;
+      document.getElementById("chartData").hidden = true;
+    }
+
+    document.getElementById("placeholder").hidden = true;
+    document.getElementById("results").hidden = false;
+  });
+</script>
+</body>
+</html>
