@@ -47,7 +47,7 @@ más de esa API, no la fuente de verdad.
 ```bash
 cd api
 npm install
-npm start   # http://localhost:3001 — sirve la API y, en la misma URL, la web (web/)
+npm start   # http://localhost:3002 — sirve la API y, en la misma URL, la web (web/)
 ```
 
 No hay paso de build. `web/` es HTML/CSS/JS plano; si necesitas servirla por separado de la

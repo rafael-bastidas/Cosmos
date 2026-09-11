@@ -4,7 +4,7 @@ const cors = require("cors");
 const archetypesRouter = require("./routes/archetypes");
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 
 // Abierta a cualquier origen a propósito: es una API pública de solo cálculo (sin
 // autenticación ni datos persistidos) pensada para ser consumida desde otros proyectos.
@@ -25,6 +25,6 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: "Error interno del servidor." });
 });
 
-app.listen(PORT, () => {
-  console.log(`Cosmos API escuchando en http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Cosmos API escuchando en http://0.0.0.0:${PORT}`);
 });
